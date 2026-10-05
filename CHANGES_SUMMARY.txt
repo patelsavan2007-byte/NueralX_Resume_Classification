@@ -1,0 +1,122 @@
+================================================================================
+NUERALX RESUME CLASSIFICATION — COMPLETE PROJECT CHANGES SUMMARY
+================================================================================
+Project: SAMATRIX RESUMEFORGE 2026 Hackathon
+Repository: NueralX_Resume_Classification
+Branches Synchronized & Pushed: main, develop, savan_p3, jeel_p2, poojan_p1
+Generated Date: October 5, 2026
+
+--------------------------------------------------------------------------------
+1. REPOSITORY SETUP & INFRASTRUCTURE CHANGES
+--------------------------------------------------------------------------------
+- Created clean modular directory architecture:
+    app/         -> Streamlit interactive web application
+    data/        -> raw/ (csv & 2500 pdfs), processed/ (train, val, test splits)
+    docs/        -> Competition problem statement and task division documents
+    models/      -> Serialized models (joblib, PyTorch checkpoints, vocabularies)
+    notebooks/   -> 5 step-by-step Jupyter notebooks (01 to 05)
+    reports/     -> final_results.md, figures/ (19 charts/confusion matrices)
+    scripts/     -> Standalone execution scripts for EDA and preprocessing
+    src/         -> Core reusable modules (data_loader, preprocessing, features,
+                    train_ml, train_dl, evaluate, predict, word2vec)
+- Configured .gitignore to strictly exclude datasets (*.csv, *.pdf, *.xlsx, *.zip)
+  and model weight files (*.pt, *.joblib) while tracking folder structures (.gitkeep).
+- Pinned all dependencies in requirements.txt (PyTorch, scikit-learn, Streamlit, etc.).
+
+--------------------------------------------------------------------------------
+2. PERSON 1 (POOJAN — poojan_p1) CHANGES & DELIVERABLES
+--------------------------------------------------------------------------------
+Tasks Completed: P1.1 to P1.13
+- Verified dataset: 2,484 resume records across 24 professional categories.
+- Conducted data quality audit: identified 1 empty record, 2 duplicates, short text;
+  findings documented in reports/p1_data_quality_report.txt.
+- Generated 14 EDA visualizations saved in reports/figures/:
+    * Class distribution (bar chart & pie chart)
+    * Text length and word count distributions
+    * Top 30 words before and after stopword removal
+    * Overall WordCloud, Top-6 category WordClouds, Bottom-6 category WordClouds
+    * Bigram and trigram frequency charts
+    * Mean word count and vocabulary diversity per category
+- Implemented clean_resume_text() in src/preprocessing.py:
+    * Preserves critical technical tokens: Python, C++, SQL, AWS, Docker,
+      Kubernetes, CI/CD, Node.js, React.js, .NET, NLP, etc.
+    * Normalizes whitespace, lowercase, strips HTML/markup, handles URLs/emails.
+- Executed 70/15/15 stratified train/val/test split (1,738 / 373 / 373) saved
+  locally in data/processed/ (train.csv, val.csv, test.csv) with zero leakage.
+- Populated notebooks/01_data_quality_eda.ipynb and 02_preprocessing.ipynb.
+- Merged into main via PR #2.
+
+--------------------------------------------------------------------------------
+3. PERSON 2 (JEEL — jeel_p2) CHANGES & DELIVERABLES
+--------------------------------------------------------------------------------
+Tasks Completed: P2.1 to P2.13
+- Built TF-IDF feature pipelines: compared unigram (1,1) vs unigram+bigram (1,2)
+  with sublinear_tf=True, min_df=2, max_df=0.9, max_features=10,000.
+- Trained & evaluated 3 Classical ML classifiers using 5-Fold Stratified CV:
+    * Linear SVM (SGDClassifier, hinge loss, alpha=1e-4) -> 68.82% Val Acc, 0.6518 Macro-F1 [BEST ML]
+    * Logistic Regression (lbfgs, C=1.0) -> 65.05% Val Acc, 0.6146 Macro-F1
+    * Multinomial Naive Bayes (alpha=0.1) -> 55.11% Val Acc, 0.4842 Macro-F1
+- Extracted top 15 weighted TF-IDF terms per class -> saved to
+  reports/top_tfidf_terms_per_class.json and reports/figures/top_tfidf_terms_per_class.png.
+- Performed detailed error analysis: generated confusion matrix heatmaps for all
+  models and categorized 116 validation errors into class overlap, generic text,
+  and ambiguous resumes (reports/error_diagnosis.json).
+- Serialized best ML pipeline: models/tfidf_vectorizer.joblib,
+  models/best_ml_model_Linear_SVM.joblib, models/final_pipeline.joblib.
+- Created standalone script src/run_p2_pipeline.py and notebook 03_tfidf_ml.ipynb.
+- Merged into main via PR #1.
+
+--------------------------------------------------------------------------------
+4. PERSON 3 (SAVAN — savan_p3) CHANGES & DELIVERABLES
+--------------------------------------------------------------------------------
+Tasks Completed: P3.1 to P3.13
+- Trained custom PyTorch Skip-Gram Word2Vec (150-d, window=5, negative sampling=5)
+  strictly on the training corpus (zero test leakage).
+- Built document representations via mean pooling -> (N, 150) document vectors.
+- Developed Deep Learning architectures:
+    * Dense NN (MLP 256->128->64 with BatchNorm, Dropout, ReLU) -> 48.26% Val Acc
+    * 2-Layer Bidirectional LSTM over Word2Vec sequences -> 71.58% Val Acc, 0.6599 Macro-F1
+      [OVERALL CHAMPION MODEL - Beats all classical ML & DL baselines]
+- Implemented early stopping (patience=4 on Macro-F1) and lr scheduling.
+- Recomputed full metric suite from saved artifacts -> reports/dl_results.json.
+- Saved all DL artifacts: models/word2vec_pytorch.pt, models/word2vec_vocab.json,
+  models/lstm_classifier.pt, models/dense_nn_classifier.joblib, models/label_encoder.joblib.
+- Built end-to-end CLI prediction pipeline (src/predict.py):
+    * Supports raw text and PDF input.
+    * Model architecture flag (--model-type bilstm / tfidf / dense / auto).
+    * Returns predicted category, confidence %, top-5 ranking, cleaned preview.
+- Created unseen resume testing harness (src/test_unseen.py):
+    * Evaluated 5 completely unseen synthetic resumes across 5 domains (3/5 passed).
+- Built interactive Streamlit Web Application (app/app.py):
+    * Model selector (BiLSTM, Linear SVM, Dense NN, Auto).
+    * 1-click sample presets (Software Engineer, Chef, Accountant, Nurse).
+    * Live PDF resume file upload & raw text pasting.
+    * Real-time confidence bars, top-5 candidates, and preprocessing inspector.
+    * Cached models with @st.cache_resource for instant predictions.
+- Completed notebooks/04_word2vec_dl.ipynb and notebooks/05_final_evaluation.ipynb.
+
+--------------------------------------------------------------------------------
+5. INTEGRATION, DOCUMENTATION & GIT PUSH
+--------------------------------------------------------------------------------
+- Merged poojan_p1, jeel_p2, and savan_p3 into develop and main branches cleanly.
+- Updated README.md with complete 70-mark rubric checklist, full model comparison
+  benchmark table, architecture details, and execution instructions.
+- Updated WORK_STATUS.md to reflect 100% completion across all 3 team members.
+- Pushed all commits to remote GitHub repository:
+    https://github.com/patelsavan2007-byte/NueralX_Resume_Classification.git
+- All branches (main, develop, savan_p3) are synchronized at commit d3deb44.
+
+--------------------------------------------------------------------------------
+6. BENCHMARK COMPARISON SUMMARY TABLE
+--------------------------------------------------------------------------------
+Model                     Representation            Val Acc    Macro-F1   Pred Latency
+--------------------------------------------------------------------------------------
+BiLSTM (Bidirectional)    Word2Vec Token Sequences  71.58%     0.6599     ~12 ms  [BEST OVERALL]
+Linear SVM                TF-IDF (Uni + Bigrams)    68.82%     0.6518     ~3.6 ms [BEST ML]
+Logistic Regression       TF-IDF (Uni + Bigrams)    65.05%     0.6146     ~2.1 ms
+Multinomial Naive Bayes   TF-IDF (Uni + Bigrams)    55.11%     0.4842     ~5.0 ms
+Dense NN (MLP)            Mean Word2Vec (150-d)     48.26%     0.4244     ~4.2 ms
+
+================================================================================
+END OF CHANGES SUMMARY
+================================================================================
