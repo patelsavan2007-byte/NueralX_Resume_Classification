@@ -210,6 +210,55 @@ st.markdown("""
         color: #92400e;
     }
 
+    .taxonomy-notice {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-left: 4px solid #6366f1;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        margin: 0.6rem 0 0.9rem 0;
+        font-size: 0.88rem;
+        color: #334155;
+        line-height: 1.45;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+
+    .ood-warning {
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 1px solid #f59e0b;
+        border-left: 5px solid #d97706;
+        border-radius: 10px;
+        padding: 0.85rem 1.1rem;
+        margin: 0.7rem 0 0.9rem 0;
+        font-size: 0.88rem;
+        color: #92400e;
+        line-height: 1.5;
+        box-shadow: 0 2px 8px rgba(245, 158, 11, 0.08);
+    }
+
+    .med-conf-notice {
+        background: #fefce8;
+        border-left: 4px solid #eab308;
+        border-radius: 8px;
+        padding: 0.65rem 0.9rem;
+        margin: 0.6rem 0 0.8rem 0;
+        font-size: 0.875rem;
+        color: #854d0e;
+        line-height: 1.45;
+    }
+
+    .scope-pill {
+        display: inline-block;
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #4f46e5;
+        background: #eef2ff;
+        padding: 0.2rem 0.6rem;
+        border-radius: 6px;
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
     div[data-testid="stTabs"] button {
         font-weight: 600 !important;
     }
@@ -402,15 +451,25 @@ with tab_predict:
             ptype = result.get("pipeline_type", "N/A")
             top_cats = result.get("top_categories", [])
 
-            # ── Predicted Category Badge ──
+            # ── Predicted Category Scope & Badge ──
+            st.markdown('<div class="scope-pill">🎯 Predicted Dataset Category (1 of 24 Classes)</div>', unsafe_allow_html=True)
             st.markdown(f'<div class="category-badge">🏷️ {pred_cat}</div>', unsafe_allow_html=True)
-            st.write("")
+            st.caption("ℹ️ *Mapped to the closest pre-defined industry category from the 24 training classes.*")
+
+            # ── Dataset Scope Explanation Callout ──
+            st.markdown(
+                '<div class="taxonomy-notice">'
+                '📌 <strong>Dataset Scope Note:</strong> This dataset contains 24 job categories and does not include '
+                'AI/ML or Data Science; predictions are therefore limited to the available categories.'
+                '</div>',
+                unsafe_allow_html=True,
+            )
 
             # ── Confidence with color coding ──
             if conf_pct >= 60:
                 conf_class, conf_icon, conf_label = "confidence-high", "🟢", "High"
-            elif conf_pct >= 30:
-                conf_class, conf_icon, conf_label = "confidence-mid", "🟡", "Medium"
+            elif conf_pct >= 35:
+                conf_class, conf_icon, conf_label = "confidence-mid", "🟡", "Moderate"
             else:
                 conf_class, conf_icon, conf_label = "confidence-low", "🔴", "Low"
 
@@ -420,15 +479,24 @@ with tab_predict:
                 unsafe_allow_html=True,
             )
 
-            # ── Low confidence warning ──
-            if conf_pct < 30:
+            # ── Low Confidence / Out-of-Distribution Warning ──
+            if conf_pct < 35:
                 st.markdown(
-                    '<div class="low-conf-warning">'
-                    '⚠️ <strong>Low confidence prediction.</strong> The model is uncertain about '
-                    'this classification. The resume may contain generic language, overlap with '
-                    'multiple domains, or be too short for reliable classification. Review the '
-                    'Top-5 candidates below for alternative categories.'
-                    '</div>',
+                    f'<div class="ood-warning">'
+                    f'<strong>⚠️ Low Confidence / Out-of-Distribution Alert ({conf_pct:.1f}%):</strong><br>'
+                    f'The model is uncertain about this classification. The resume likely contains modern technical '
+                    f'terminology (such as AI/ML, Data Science, or specialized frameworks), spans multiple functional '
+                    f'domains, or differs from the 2018 benchmark training corpus.<br>'
+                    f'<span style="font-weight:600;">👉 Please consult the <strong>Top-5 Candidate Categories</strong> below for competing domain probabilities.</span>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            elif conf_pct < 60:
+                st.markdown(
+                    f'<div class="med-conf-notice">'
+                    f'🟡 <strong>Moderate Confidence:</strong> The model identified relevant keyword associations for '
+                    f'<strong>{pred_cat}</strong>, but secondary domains share noticeable probability. Check the Top-5 distribution below.'
+                    f'</div>',
                     unsafe_allow_html=True,
                 )
             st.write("")
@@ -474,6 +542,29 @@ with tab_predict:
             with st.expander("🔍 Preprocessing Inspection (cleaned text)", expanded=False):
                 cleaned = clean_resume_text(resume_text)
                 st.code(cleaned[:600] + ("..." if len(cleaned) > 600 else ""), language=None)
+
+            # ── Cross-Model Consensus (Quick Multi-Model Comparison) ──
+            with st.expander("⚡ Cross-Model Consensus (Compare All 3 Models on this Resume)", expanded=False):
+                st.caption("Side-by-side predictions across all 3 benchmark models on the exact same resume text:")
+                col_m1, col_m2, col_m3 = st.columns(3)
+                with col_m1:
+                    p_bilstm = get_pipeline("bilstm")
+                    res_bilstm = p_bilstm.predict(resume_text)
+                    st.markdown("**🏆 BiLSTM (Best DL)**")
+                    st.markdown(f"🏷️ `{res_bilstm.get('predicted_category', 'N/A')}`")
+                    st.caption(f"Confidence: **{res_bilstm.get('confidence', 0)*100:.1f}%**")
+                with col_m2:
+                    p_svm = get_pipeline("tfidf")
+                    res_svm = p_svm.predict(resume_text)
+                    st.markdown("**⚡ Linear SVM (Best ML)**")
+                    st.markdown(f"🏷️ `{res_svm.get('predicted_category', 'N/A')}`")
+                    st.caption(f"Confidence: **{res_svm.get('confidence', 0)*100:.1f}%**")
+                with col_m3:
+                    p_dense = get_pipeline("dense")
+                    res_dense = p_dense.predict(resume_text)
+                    st.markdown("**🧠 Dense NN (MLP)**")
+                    st.markdown(f"🏷️ `{res_dense.get('predicted_category', 'N/A')}`")
+                    st.caption(f"Confidence: **{res_dense.get('confidence', 0)*100:.1f}%**")
 
         elif predict_btn:
             st.warning("⚠️ Please provide meaningful resume text (at least 10 characters).")
