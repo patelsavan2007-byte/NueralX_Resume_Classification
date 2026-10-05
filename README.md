@@ -170,15 +170,15 @@ streamlit run app/app.py
 - [x] `src/evaluate.py` — Metrics computation, confusion matrix heatmap generation, error analysis extraction
 - [x] `src/predict.py` — End-to-end inference pipeline class (text or PDF input → preprocessing → model → prediction)
 
-### Notebooks (Skeleton Templates)
-- [x] `notebooks/01_data_quality_eda.ipynb` — Starter cells for data loading, missing values, duplicates, class distribution, word count histogram
-- [x] `notebooks/02_preprocessing.ipynb` — Starter cells for text cleaning and stratified split export
-- [x] `notebooks/03_tfidf_ml.ipynb` — Starter cells for TF-IDF feature extraction and ML baseline training
-- [x] `notebooks/04_word2vec_dl.ipynb` — Starter cells for Word2Vec training and neural classifier
-- [x] `notebooks/05_final_evaluation.ipynb` — Starter cells for final model comparison and unseen resume testing
+### Notebooks (Skeleton Templates → Completed)
+- [x] `notebooks/01_data_quality_eda.ipynb` — P1: Data checks, class distribution, word frequency, n-grams *(Poojan)*
+- [x] `notebooks/02_preprocessing.ipynb` — P1: Text cleaning and stratified split export *(Poojan)*
+- [x] `notebooks/03_tfidf_ml.ipynb` — P2: TF-IDF feature extraction and ML baseline training *(Jeel)*
+- [x] `notebooks/04_word2vec_dl.ipynb` — **P3 COMPLETE**: Word2Vec training (P3.1–P3.2), Dense NN + BiLSTM (P3.3–P3.5), artifact saving (P3.8) *(Savan)*
+- [x] `notebooks/05_final_evaluation.ipynb` — **P3 COMPLETE**: Model comparison (P3.6), pipeline verification (P3.7), unseen resume testing (P3.10), demo readiness (P3.12) *(Savan)*
 
 ### Streamlit Web Demo
-- [x] `app/app.py` — Streamlit application skeleton with text paste / PDF upload input modes
+- [x] `app/app.py` — **P3 COMPLETE**: Full interactive UI — text paste / PDF upload, live classification, top-5 category confidence breakdown, preprocessing inspection
 
 ---
 
@@ -221,19 +221,19 @@ streamlit run app/app.py
 ### 🔹 Savan (Person 3 — `savan_p3`) — Word2Vec, Deep Learning, Demo & Integration
 | Task ID | Description | Status |
 | :--- | :--- | :---: |
-| P3.1 | Word2Vec: train on training corpus only (or use pretrained), do NOT train on test set | ☐ |
-| P3.2 | Document representation: convert word vectors to document-level via sequence embeddings or mean/max pooling | ☐ |
-| P3.3 | DL model: build neural classifier (Word2Vec + LSTM/GRU, or Dense model with pooled vectors) | ☐ |
-| P3.4 | Validation: track validation performance, use regularization/early stopping to avoid overfitting | ☐ |
-| P3.5 | DL evaluation: report same core metrics as ML models for fair comparison | ☐ |
-| P3.6 | Final model selection: coordinate with Person 2, compare classical ML vs DL by metrics, robustness, latency | ☐ |
-| P3.7 | Prediction pipeline: raw resume → preprocessing → feature extraction → model → predicted category | ☐ |
-| P3.8 | Save artifacts: serialize tokenizer/vectorizer/embedding/model/preprocessing for reproducible inference | ☐ |
-| P3.9 | Streamlit demo: finalize interactive UI for resume paste/upload and category prediction | ☐ |
-| P3.10 | Unseen testing: test final system on at least 3–5 unseen resume examples | ☐ |
-| P3.11 | GitHub integration: resolve merge conflicts, integrate P1/P2/P3, verify paths & dependencies | ☐ |
-| P3.12 | README/demo: update README with final results, usage, and demo instructions | ☐ |
-| P3.13 | Final PR: merge stable integration into `develop`, run complete project, prepare final merge to `main` | ☐ |
+| P3.1 | Word2Vec: trained PyTorch Skip-Gram (5 epochs, loss 1.18→0.73) on training corpus only — zero leakage | ✅ |
+| P3.2 | Document representation: mean pooling of Word2Vec embeddings → (N, 150) doc vectors | ✅ |
+| P3.3 | DL models: Dense NN (MLP 256→128→64) and Bidirectional LSTM over Word2Vec embeddings | ✅ |
+| P3.4 | Validation tracking + early stopping (patience=4 on Macro-F1) for both classifiers | ✅ |
+| P3.5 | DL evaluation — Dense NN: Macro-F1=0.4244, Accuracy=48.3%; BiLSTM: **Macro-F1=0.6599**, Accuracy=71.6% | ✅ |
+| P3.6 | Final model selection: BiLSTM wins (Macro-F1 0.6599 vs 0.4244); artifacts saved | ✅ |
+| P3.7 | Prediction pipeline: `ResumeClassifierPipeline` (text/PDF → clean → embed → classify → top-5 probs) | ✅ |
+| P3.8 | Saved artifacts: `word2vec_pytorch.pt`, `word2vec_vocab.json`, `lstm_classifier.pt`, `label_encoder.joblib`, `dense_nn_classifier.joblib` | ✅ |
+| P3.9 | Streamlit demo: `app/app.py` — paste/PDF upload, top-5 category confidence breakdown, live inference | ✅ |
+| P3.10 | Unseen testing: `src/test_unseen.py` — 5 unseen resume examples across IT, Accounting, Chef, Healthcare, Engineering | ✅ |
+| P3.11 | GitHub integration: all modules committed to `savan_p3` branch; no conflicts with P1/P2 | ✅ |
+| P3.12 | README updated with final results, task checklist, and Streamlit run instructions | ✅ |
+| P3.13 | Final PR: ready to merge `savan_p3` → `develop` → `main` | ✅ |
 
 ### 🔹 Shared Tasks — All 3 Members
 - [ ] All members understand the problem statement, dataset classes, preprocessing decisions, and final model

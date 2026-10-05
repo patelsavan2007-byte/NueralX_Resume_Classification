@@ -37,6 +37,8 @@ class ResumeClassifierPipeline:
         self.label_encoder = None
         self.tfidf_vectorizer = None
         self.pipeline_type = None
+        self.pipeline = None
+        self.ml_metadata = None
 
         # Try Word2Vec + Dense NN first
         if self._try_load_word2vec_pipeline():
@@ -67,14 +69,46 @@ class ResumeClassifierPipeline:
         return False
 
     def _try_load_tfidf_pipeline(self) -> bool:
-        """Load TF-IDF + ML artifacts."""
-        tfidf_path = os.path.join(self.models_dir, "tfidf_vectorizer.joblib")
-        clf_path = os.path.join(self.models_dir, "best_ml_model.joblib")
+        """
+        Load TF-IDF + ML artifacts written by src/run_p2_pipeline.py (Person 2 / branch jeel_p2).
 
-        if os.path.exists(tfidf_path) and os.path.exists(clf_path):
+        That pipeline writes:
+          - models/tfidf_vectorizer.joblib
+          - models/best_ml_model_<Name>.joblib   (e.g. best_ml_model_Linear_SVM.joblib)
+          - models/final_pipeline.joblib         (sklearn Pipeline: tfidf -> clf)
+        """
+        import glob
+        import json
+
+        tfidf_path = os.path.join(self.models_dir, "tfidf_vectorizer.joblib")
+
+        # Prefer the self-contained sklearn Pipeline (tfidf + classifier in one artifact).
+        pipeline_path = os.path.join(self.models_dir, "final_pipeline.joblib")
+        if os.path.exists(pipeline_path):
+            try:
+                self.pipeline = joblib.load(pipeline_path)
+                self.tfidf_vectorizer = self.pipeline
+                self.classifier = self.pipeline
+                meta_path = os.path.join(self.models_dir, "training_metadata.json")
+                if os.path.exists(meta_path):
+                    with open(meta_path, "r", encoding="utf-8") as f:
+                        self.ml_metadata = json.load(f)
+                self.label_encoder = None  # Pipeline exposes string classes directly
+                return True
+            except Exception as e:
+                print(f"Warning: Failed to load final_pipeline.joblib: {e}")
+                self.pipeline = None
+
+        # Fallback: vectorizer + best_ml_model_<Name>.joblib
+        if os.path.exists(tfidf_path):
+            candidates = sorted(glob.glob(os.path.join(self.models_dir, "best_ml_model_*.joblib")))
+            if not candidates:
+                # Legacy/explicit name kept working.
+                candidates = [os.path.join(self.models_dir, "best_ml_model.joblib")]
             try:
                 self.tfidf_vectorizer = joblib.load(tfidf_path)
-                self.classifier = joblib.load(clf_path)
+                self.classifier = joblib.load(candidates[0])
+                print(f"  Using classical ML artifact: {os.path.basename(candidates[0])}")
                 le_path = os.path.join(self.models_dir, "label_encoder.joblib")
                 if os.path.exists(le_path):
                     self.label_encoder = joblib.load(le_path)
@@ -154,39 +188,38 @@ class ResumeClassifierPipeline:
                 ]
 
         elif self.pipeline_type == "tfidf_ml":
-            X = self.tfidf_vectorizer.transform([cleaned_text])
-            pred_category = self.classifier.predict(X)[0]
+            # If Person 2's self-contained sklearn Pipeline is available it takes
+            # raw (cleaned) text directly; otherwise transform with the vectorizer.
+            if self.pipeline is not None:
+                X_in = [cleaned_text]
+            else:
+                X_in = self.tfidf_vectorizer.transform([cleaned_text])
+            pred_category = self.classifier.predict(X_in)[0]
+
+            def _label(idx):
+                if self.label_encoder is not None:
+                    return self.label_encoder.inverse_transform([idx])[0]
+                classes = getattr(self.classifier, "classes_", None)
+                if classes is None:
+                    return str(idx)
+                return str(classes[idx])
 
             if hasattr(self.classifier, "predict_proba"):
-                probs = self.classifier.predict_proba(X)[0]
+                probs = self.classifier.predict_proba(X_in)[0]
                 confidence = float(np.max(probs))
                 top_indices = np.argsort(probs)[::-1][:5]
                 top_categories = [
-                    {
-                        "category": (
-                            self.label_encoder.inverse_transform([idx])[0]
-                            if self.label_encoder is not None
-                            else str(self.classifier.classes_[idx])
-                        ),
-                        "confidence": float(probs[idx]),
-                    }
+                    {"category": _label(idx), "confidence": float(probs[idx])}
                     for idx in top_indices
                 ]
             elif hasattr(self.classifier, "decision_function"):
-                scores = self.classifier.decision_function(X)[0]
+                scores = self.classifier.decision_function(X_in)[0]
                 exp_scores = np.exp(scores - np.max(scores))
                 probs = exp_scores / exp_scores.sum()
                 confidence = float(np.max(probs))
                 top_indices = np.argsort(probs)[::-1][:5]
                 top_categories = [
-                    {
-                        "category": (
-                            self.label_encoder.inverse_transform([idx])[0]
-                            if self.label_encoder is not None
-                            else str(self.classifier.classes_[idx])
-                        ),
-                        "confidence": float(probs[idx]),
-                    }
+                    {"category": _label(idx), "confidence": float(probs[idx])}
                     for idx in top_indices
                 ]
 

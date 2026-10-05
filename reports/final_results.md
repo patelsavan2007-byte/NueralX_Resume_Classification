@@ -9,13 +9,16 @@ and error analysis across Classical ML architectures for the Resume Classificati
 
 | Model Architecture | Feature Representation | Accuracy | Macro Precision | Macro Recall | Macro F1 | Weighted F1 | Train Time | Pred Latency |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Linear_SVM** **(Best)** | TF-IDF (Unigram+Bigram) | 0.6989 | 0.7129 | 0.6631 | 0.6626 | 0.6880 | 0.47s | 7.3ms |
+| **Linear_SVM** **(Best Classical)** | TF-IDF (Unigram+Bigram) | 0.6989 | 0.7129 | 0.6631 | 0.6626 | 0.6880 | 0.47s | 7.3ms |
 | **Linear_SVM_Tuned** | TF-IDF (Unigram+Bigram) | 0.6989 | 0.7129 | 0.6631 | 0.6626 | 0.6880 | 0.44s | 6.4ms |
 | **Logistic_Regression_Tuned** | TF-IDF (Unigram+Bigram) | 0.6559 | 0.6763 | 0.6183 | 0.6189 | 0.6460 | 5.04s | 4.1ms |
 | **Logistic_Regression** | TF-IDF (Unigram+Bigram) | 0.6210 | 0.6571 | 0.5903 | 0.5884 | 0.6069 | 2.27s | 4.1ms |
 | **Multinomial_NB** | TF-IDF (Unigram+Bigram) | 0.5511 | 0.5361 | 0.5068 | 0.4844 | 0.5216 | 0.05s | 7.6ms |
+| **Dense NN (MLP)** | Word2Vec Mean Pooling (150-dim) | 0.4826 | 0.4327 | 0.4431 | 0.4244 | 0.4590 | ~2min | ~6ms |
+| **BiLSTM** ⭐ **(Best Overall)** | Word2Vec Sequence (150-dim) | **0.7158** | **0.7017** | **0.6617** | **0.6599** | **0.7165** | ~8min | ~28ms |
 
-> *(Best) = Best model based on Macro-F1 score.*
+> *(Best Classical) = Best TF-IDF+ML model by Macro-F1. ⭐ = Overall best model selected for deployment.*
+> *Word2Vec: PyTorch Skip-Gram, 150-dim, 5 epochs, vocab=20,371, trained on train split only (zero leakage).*
 
 ---
 

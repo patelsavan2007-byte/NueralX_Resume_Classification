@@ -22,9 +22,9 @@ joblib>=1.3.0
 
 # Word Embeddings & Deep Learning
 gensim>=4.3.0
-# Optional DL framework: install torch or tensorflow based on your system / GPU availability
-# torch>=2.0.0
-# tensorflow>=2.13.0
+# PyTorch is REQUIRED for the Word2Vec (skip-gram) and BiLSTM training in src/word2vec.py
+# and src/train_dl.py. CPU build is sufficient; a CUDA build is used automatically if present.
+torch>=2.0.0
 
 # Web Application Demo
 streamlit>=1.28.0
