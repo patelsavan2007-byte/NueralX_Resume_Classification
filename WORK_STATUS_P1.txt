@@ -64,9 +64,11 @@ Done:
 - P1.11 Verified all 15 target technical tokens survive the pipeline.
 - P1.12 Stratified split (70/15/15) exported; handoff doc generated.
 
+- P1.13 Committed and pushed all P1 notebooks, scripts, figures, reports,
+  and handoff documentation to origin/poojan_p1.
+
 Pending:
-- P1.13 Commit and push the P1 notebooks/scripts/figures, then open a PR
-  from poojan_p1 into develop.
+- Open a PR from poojan_p1 into develop (and conduct team review).
 
 Person 2 tasks (Jeel - jeel_p2)
 ------------------------------
