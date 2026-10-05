@@ -72,15 +72,39 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+# ── Model Cache ────────────────────────────────────────────────
+@st.cache_resource
+def get_pipeline(model_key: str):
+    return ResumeClassifierPipeline(model_type=model_key)
+
+
 # ── Sidebar ────────────────────────────────────────────────────
 with st.sidebar:
-    st.header("ℹ️ About")
+    st.header("⚙️ Model Architecture")
+    model_options = {
+        "🏆 Word2Vec + BiLSTM (Deep Learning)": "bilstm",
+        "⚡ TF-IDF + Linear SVM (Best Classical)": "tfidf",
+        "🧠 Word2Vec + Dense NN (MLP Baseline)": "dense",
+        "🤖 Auto (Best Available Model)": "auto",
+    }
+    selected_option = st.selectbox(
+        "Select Classification Model:",
+        list(model_options.keys()),
+        index=0,
+        help="Switch between Deep Learning (BiLSTM), Classical ML (Linear SVM), or Dense NN.",
+    )
+    chosen_model_type = model_options[selected_option]
+
+    st.divider()
+    st.header("ℹ️ About the Project")
     st.markdown(
         "This demo classifies resumes into one of **24 professional categories** "
-        "using a Word2Vec + Neural Network pipeline trained on 2,484 labeled resumes."
+        "using NLP pipelines trained on 2,484 labeled resumes across 24 domains."
     )
+    st.caption("• **Best DL:** BiLSTM (Val Macro-F1: 0.6599, Acc: 71.6%)\n• **Best ML:** Linear SVM (Val Macro-F1: 0.6518, Acc: 68.8%)")
+
     st.divider()
-    st.markdown("**🏷️ Supported Categories:**")
+    st.markdown("**🏷️ Supported Categories (24):**")
     categories = [
         "ACCOUNTANT", "ADVOCATE", "AGRICULTURE", "APPAREL", "ARTS",
         "AUTOMOBILE", "AVIATION", "BANKING", "BPO", "BUSINESS-DEVELOPMENT",
@@ -88,8 +112,10 @@ with st.sidebar:
         "ENGINEERING", "FINANCE", "FITNESS", "HEALTHCARE", "HR",
         "INFORMATION-TECHNOLOGY", "PUBLIC-RELATIONS", "SALES", "TEACHER",
     ]
-    for cat in categories:
-        st.caption(f"• {cat}")
+    with st.expander("View All Categories", expanded=False):
+        for cat in categories:
+            st.caption(f"• {cat}")
+
     st.divider()
     st.caption("Team NueralX: Poojan (Data/EDA) | Jeel (ML) | Savan (DL/Demo)")
 
@@ -98,6 +124,34 @@ col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
     st.subheader("📥 Input Resume")
+    
+    # Quick Sample Presets
+    SAMPLE_RESUMES = {
+        "None (Empty)": "",
+        "IT / Software Engineer": (
+            "Senior Software Engineer with 8+ years experience in Python, Java, React, Docker, "
+            "Kubernetes, microservices architecture, PostgreSQL, AWS cloud, and CI/CD pipelines. "
+            "Led backend architecture serving 15M daily requests with high availability."
+        ),
+        "Chef / Culinary": (
+            "Executive Chef with 10 years experience in French and Italian culinary cuisine. "
+            "Menu design, food safety, inventory management, kitchen operations, fine dining catering, "
+            "HACCP certified, banquet coordination, recipe development."
+        ),
+        "Accountant / Finance": (
+            "Senior Accountant with CPA certification. Expertise in GAAP, corporate tax filing, "
+            "financial audits, QuickBooks, balance sheets, payroll reconciliation, general ledger, "
+            "and accounts payable/receivable management."
+        ),
+        "Healthcare / Nursing": (
+            "Registered Nurse (RN) with 6 years experience in ICU and emergency care. Patient triage, "
+            "vital signs monitoring, medication administration, BLS/ACLS certified, clinical documentation, "
+            "and multidisciplinary hospital team coordination."
+        ),
+    }
+
+    sample_choice = st.selectbox("Quick Test with Sample Resumes:", list(SAMPLE_RESUMES.keys()), index=0)
+
     input_mode = st.radio(
         "Choose input method:",
         ["✏️ Paste Text", "📁 Upload PDF"],
@@ -107,9 +161,11 @@ with col1:
     resume_text = ""
 
     if input_mode == "✏️ Paste Text":
+        default_val = SAMPLE_RESUMES[sample_choice] if sample_choice != "None (Empty)" else ""
         resume_text = st.text_area(
             "Paste raw resume content here:",
-            height=350,
+            value=default_val,
+            height=320,
             placeholder=(
                 "e.g. Senior Software Engineer with 8+ years of experience in Python, "
                 "Java, C++, AWS, Docker, Kubernetes, microservices architecture, CI/CD pipelines. "
@@ -146,8 +202,8 @@ with col2:
     st.subheader("📊 Classification Result")
 
     if predict_btn and resume_text.strip():
-        with st.spinner("🔍 Analyzing resume and classifying domain..."):
-            pipeline = ResumeClassifierPipeline()
+        with st.spinner(f"🔍 Analyzing resume with {selected_option}..."):
+            pipeline = get_pipeline(chosen_model_type)
             result = pipeline.predict(resume_text)
 
         # Category

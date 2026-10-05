@@ -8,12 +8,26 @@ Task P3.8: Load saved artifacts for reproducible inference
 """
 
 import os
+import sys
+
+# Ensure repository root is on sys.path for direct script execution
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 import numpy as np
 import joblib
 from typing import Dict, Any, Union
 
-from src.preprocessing import clean_resume_text, tokenize_resume
-from src.data_loader import extract_text_from_pdf
+try:
+    from src.preprocessing import clean_resume_text, tokenize_resume
+    from src.data_loader import extract_text_from_pdf
+except ImportError:
+    from preprocessing import clean_resume_text, tokenize_resume
+    from data_loader import extract_text_from_pdf
 
 
 class ResumeClassifierPipeline:
@@ -26,7 +40,7 @@ class ResumeClassifierPipeline:
     5. Return category + confidence
     """
 
-    def __init__(self, models_dir: str = None):
+    def __init__(self, models_dir: str = None, model_type: str = "auto"):
         if models_dir is None:
             models_dir = os.path.join(os.path.dirname(__file__), "..", "models")
 
@@ -41,19 +55,30 @@ class ResumeClassifierPipeline:
         self.ml_metadata = None
         self.lstm_model = None
         self.lstm_max_len = 250
+        self.model_type = (model_type or "auto").lower()
 
         # Preference order reflects the P3.6 selection on the held-out test split:
         # BiLSTM (test Macro-F1 0.6431) > Dense NN (0.4809) > classical TF-IDF ML.
-        if self._try_load_lstm_pipeline():
-            self.pipeline_type = "word2vec_lstm"
-            print(f"Loaded Word2Vec + BiLSTM pipeline from {self.models_dir}")
-        elif self._try_load_word2vec_pipeline():
-            self.pipeline_type = "word2vec_dense"
-            print(f"Loaded Word2Vec + Dense NN pipeline from {self.models_dir}")
-        elif self._try_load_tfidf_pipeline():
-            self.pipeline_type = "tfidf_ml"
-            print(f"Loaded TF-IDF + ML pipeline from {self.models_dir}")
-        else:
+        loaded = False
+        if self.model_type in ("bilstm", "auto"):
+            if self._try_load_lstm_pipeline():
+                self.pipeline_type = "word2vec_lstm"
+                print(f"Loaded Word2Vec + BiLSTM pipeline from {self.models_dir}")
+                loaded = True
+
+        if not loaded and self.model_type in ("dense", "auto"):
+            if self._try_load_word2vec_pipeline():
+                self.pipeline_type = "word2vec_dense"
+                print(f"Loaded Word2Vec + Dense NN pipeline from {self.models_dir}")
+                loaded = True
+
+        if not loaded and self.model_type in ("tfidf", "svm", "classical", "auto"):
+            if self._try_load_tfidf_pipeline():
+                self.pipeline_type = "tfidf_ml"
+                print(f"Loaded TF-IDF + ML pipeline from {self.models_dir}")
+                loaded = True
+
+        if not loaded:
             print("No trained model artifacts found. Pipeline will return placeholder predictions.")
 
     def _try_load_lstm_pipeline(self) -> bool:
@@ -292,3 +317,53 @@ class ResumeClassifierPipeline:
     def predict_batch(self, texts: list) -> list:
         """Predict categories for multiple resume texts."""
         return [self.predict(t) for t in texts]
+
+
+if __name__ == "__main__":
+    import argparse
+    import json
+
+    parser = argparse.ArgumentParser(description="End-to-End Resume Classification Inference")
+    parser.add_argument("--text", type=str, help="Raw resume text to classify")
+    parser.add_argument("--file", type=str, help="Path to PDF or text file to classify")
+    parser.add_argument("--models-dir", type=str, default=None, help="Path to models directory")
+    parser.add_argument(
+        "--model-type",
+        type=str,
+        default="auto",
+        choices=["auto", "bilstm", "dense", "tfidf"],
+        help="Model architecture: 'auto' (best), 'bilstm', 'dense', or 'tfidf' (classical SVM)",
+    )
+
+    args = parser.parse_args()
+
+    pipeline = ResumeClassifierPipeline(models_dir=args.models_dir, model_type=args.model_type)
+
+    if args.file:
+        if args.file.lower().endswith(".pdf"):
+            res = pipeline.predict_pdf(args.file)
+        else:
+            with open(args.file, "r", encoding="utf-8", errors="ignore") as f:
+                res = pipeline.predict(f.read())
+    elif args.text:
+        res = pipeline.predict(args.text)
+    else:
+        # Default sample run
+        sample = (
+            "Senior Python Developer with 6 years experience in Django, FastAPI, PostgreSQL, "
+            "AWS, Docker, Kubernetes, CI/CD, microservices architecture, and RESTful APIs."
+        )
+        print("No input provided. Running sample resume prediction:\n")
+        res = pipeline.predict(sample)
+
+    print("\n" + "=" * 50)
+    print(f"  Predicted Category : {res['predicted_category']}")
+    print(f"  Confidence Score   : {res['confidence']:.2%}")
+    print(f"  Pipeline Type      : {res['pipeline_type']}")
+    print("=" * 50)
+    print("\nTop 5 Candidates:")
+    for i, c in enumerate(res.get("top_categories", []), 1):
+        print(f"  {i}. {c['category']:<25} ({c['confidence']:.2%})")
+    print("\nCleaned Preview:")
+    print(f"  {res['cleaned_preview']}")
+    print("=" * 50 + "\n")
