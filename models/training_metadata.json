@@ -1,0 +1,14 @@
+{
+  "best_model": "Linear_SVM",
+  "best_C": 10.0,
+  "best_alpha": 0.0001,
+  "vectorizer_params": {
+    "ngram_range": [
+      1,
+      2
+    ],
+    "max_features": 20000,
+    "min_df": 3,
+    "max_df": 0.9
+  }
+}
