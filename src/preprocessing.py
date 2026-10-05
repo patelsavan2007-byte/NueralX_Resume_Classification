@@ -11,18 +11,19 @@ import re
 import html
 from typing import List
 
-# Key technical patterns to protect before aggressive regex cleaning
+# Key technical patterns to protect before aggressive regex cleaning.
+# NOTE: Trailing \b fails after non-word chars (+, #), so we use (?!\w) instead.
 PROTECTED_TERMS = {
-    r"\bc\+\+\b": "cpp_token",
-    r"\bc#\b": "csharp_token",
-    r"\b\.net\b": "dotnet_token",
-    r"\bci/cd\b": "cicd_token",
-    r"\bnode\.js\b": "nodejs_token",
-    r"\bvue\.js\b": "vuejs_token",
-    r"\breact\.js\b": "reactjs_token",
+    r"\bc\+\+(?!\w)": "cplusplus",
+    r"\bc#(?!\w)": "csharp",
+    r"\b\.net(?!\w)": "dotnet",
+    r"\bci/cd(?!\w)": "cicd",
+    r"\bnode\.js(?!\w)": "nodejs",
+    r"\bvue\.js(?!\w)": "vuejs",
+    r"\breact\.js(?!\w)": "reactjs",
+    r"\bhtml/css(?!\w)": "htmlcss",
+    r"\basp\.net(?!\w)": "aspnet",
 }
-
-REVERSE_PROTECTED = {v: k.replace(r"\b", "").replace("\\", "") for k, v in PROTECTED_TERMS.items()}
 
 
 def clean_resume_text(text: str, preserve_tech_terms: bool = True) -> str:
@@ -60,10 +61,9 @@ def clean_resume_text(text: str, preserve_tech_terms: bool = True) -> str:
     # 5. Remove unwanted punctuation/symbols while preserving word boundaries
     text = re.sub(r"[^\w\s]", " ", text)
 
-    # 6. Restore protected technical tokens
-    if preserve_tech_terms:
-        for placeholder, original in REVERSE_PROTECTED.items():
-            text = text.replace(placeholder, original.replace("+", "plus").replace("#", "sharp").replace(".", ""))
+    # 6. No restoration step needed — protected tokens (cplusplus, csharp, dotnet,
+    #    cicd, nodejs, vuejs, reactjs, htmlcss, aspnet) are plain alphanumeric
+    #    strings that survive the punctuation-removal regex above.
 
     # 7. Normalize multiple whitespaces and newlines
     text = re.sub(r"\s+", " ", text).strip()
