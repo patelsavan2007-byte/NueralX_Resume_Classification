@@ -1,0 +1,82 @@
+P1 → P2/P3 Preprocessing & Split Handoff Document
+==================================================
+Author: Poojan (Person 1)
+Date: 2026-10-05
+Project: NueralX Resume Classification (SAMATRIX RESUMEFORGE 2026)
+
+1. Dataset Overview
+-------------------
+- Source: data/raw/csv/Resume.csv (2,484 records, 24 classes)
+- After cleaning: 2481 records
+  - Dropped: 1 empty Resume_str
+  - Dropped: 0 records with < 10 words
+  - Dropped: 2 duplicate texts (kept first occurrence)
+
+2. Preprocessing Function: clean_resume_text()
+-----------------------------------------------
+Location: src/preprocessing.py
+
+Steps applied (in order):
+  1. HTML entity unescaping (html.unescape)
+  2. HTML tag stripping (regex)
+  3. Case folding to lowercase
+  4. Protected tech token substitution (C++, C#, .NET, CI/CD, Node.js, Vue.js, React.js)
+  5. URL normalization → "url_token"
+  6. Email normalization → "email_token"
+  7. Phone number normalization → "phone_token"
+  8. Punctuation / special character removal (keep alphanumeric + whitespace)
+  9. Protected token restoration (with safe replacements: c++ → cplusplus, etc.)
+  10. Whitespace normalization (collapse multiple spaces, strip)
+
+IMPORTANT NOTES:
+  - Stopword removal is NOT applied in clean_resume_text().
+    → P2 (TF-IDF): Use stop_words='english' in TfidfVectorizer (already configured).
+    → P3 (Word2Vec): Decide whether to remove stopwords before training embeddings.
+  - Lemmatization is NOT applied in clean_resume_text().
+    → A postprocess_text() helper is available in scripts/p1_preprocessing_split.py
+      if either P2 or P3 wants to apply it.
+  - All standard technical terms (Python, SQL, AWS, TensorFlow, Java, Docker, NLP, etc.)
+    survive the pipeline as-is because they are simple alphanumeric tokens.
+  - Terms with special characters (C++, C#, .NET, CI/CD) are handled via
+    PROTECTED_TERMS substitution to prevent regex stripping.
+
+3. Stratified Split
+--------------------
+Function: src/data_loader.stratified_split()
+Ratios: 70% train / 15% val / 15% test
+Random state: 42
+Stratified on: Category column
+
+Split sizes:
+  Train: 1736 records (70.0%)
+  Val:   372 records (15.0%)
+  Test:  373 records (15.0%)
+
+4. Output Files
+----------------
+Location: data/processed/
+Files:
+  - train.csv (columns: ID, Resume_str, cleaned_text, Category)
+  - val.csv   (columns: ID, Resume_str, cleaned_text, Category)
+  - test.csv  (columns: ID, Resume_str, cleaned_text, Category)
+
+5. Usage for P2 (Jeel)
+-----------------------
+  import pandas as pd
+  train = pd.read_csv("data/processed/train.csv")
+  # Use 'cleaned_text' column for TF-IDF vectorization
+  # TfidfVectorizer already has stop_words='english' configured in src/features.py
+
+6. Usage for P3 (Savan)
+-----------------------
+  import pandas as pd
+  train = pd.read_csv("data/processed/train.csv")
+  # Use 'cleaned_text' column for Word2Vec training
+  # Tokenize with: tokens = text.split()  (whitespace tokenization)
+  # Consider whether to remove stopwords before embedding training
+
+7. Reproducibility
+-------------------
+  - All random states are set to 42
+  - clean_resume_text() is deterministic (no random behavior)
+  - Split is deterministic given the same input data and random_state

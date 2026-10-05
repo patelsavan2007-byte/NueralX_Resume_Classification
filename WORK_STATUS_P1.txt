@@ -1,0 +1,91 @@
+NueralX Resume Classification - Person 1 Work Status
+=====================================================
+
+Owner: Poojan (Person 1)
+Branch: poojan_p1
+Updated: 2026-10-05
+
+Completed in this working copy
+------------------------------
+- Switched the working copy from main to poojan_p1.
+- Extracted Resume.csv and Resume.xlsx into data/raw/csv/.
+- Extracted 2,500 PDF resumes across 24 category folders into
+  data/raw/pdf_resumes/.
+- Kept the dataset in the local data folders; the repository .gitignore
+  excludes the raw dataset files from commits.
+- Completed the initial P1.1-P1.3 dataset inspection and quality pass;
+  findings are recorded in reports/p1_data_quality_report.txt.
+- Completed P1.4-P1.9 full EDA: class distribution, resume lengths,
+  word frequencies, WordClouds (overall + per-category), bigram/trigram
+  analysis, and class-wise vocabulary analysis.  All 10 figures saved
+  to reports/figures/.
+- Finalized clean_resume_text() in src/preprocessing.py (P1.10):
+  HTML unescape, tag stripping, case folding, protected tech token
+  substitution, URL/email/phone normalization, punctuation removal,
+  and whitespace normalization.  Stopword removal and lemmatization
+  are intentionally left out of the core function so P2/P3 can choose.
+- Verified all 15 technical tokens survive the pipeline (P1.11):
+  C++ -> cplusplus, C# -> csharp, .NET -> dotnet, CI/CD -> cicd,
+  Node.js -> nodejs, React.js -> reactjs, HTML/CSS -> htmlcss,
+  ASP.NET -> aspnet, plus Python, SQL, AWS, TensorFlow, Java,
+  JavaScript, Docker, NLP (pass through as-is).
+- Ran stratified 70/15/15 split (P1.12): 1,736 train / 372 val /
+  373 test records exported to data/processed/ (train.csv, val.csv,
+  test.csv).  Dropped 1 empty, 1 short (<10 words), and 2 duplicate
+  records before splitting.
+- Generated P1->P2/P3 handoff document at
+  docs/p1_preprocessing_handoff.txt (P1.12).
+- Updated notebooks 01_data_quality_eda.ipynb and 02_preprocessing.ipynb
+  with complete code cells matching the executed scripts.
+
+Person 1 tasks (P1)
+-------------------
+Done:
+- Local dataset placement and folder verification (supporting setup work).
+- P1.1 Dataset inspection: 2,484 records, four columns, 24 classes,
+  Resume_str as the text field, and Category as the label.
+- P1.2 Initial quality checks: one empty Resume_str, two duplicate-text
+  groups, one record under 10 words, no duplicate IDs, and no invalid
+  category labels.
+- P1.3 Dataset summary: class counts and basic character/word statistics
+  were recorded in reports/p1_data_quality_report.txt.
+- P1.4 Class distribution: bar chart and pie chart across 24 categories.
+  Imbalance ratio 5.45x (BUSINESS-DEVELOPMENT:120 vs BPO:22).
+- P1.5 Resume length distributions: word/char histograms with medians,
+  box plot per category.
+- P1.6 Word frequency: top-30 most frequent words before and after
+  stopword removal.
+- P1.7 WordClouds: overall, top-6 categories, bottom-6 (minority) categories.
+- P1.8 N-gram analysis: top-20 bigrams and trigrams (after stopword removal).
+- P1.9 Class-wise vocabulary: unique vocab sizes per category, top-10
+  discriminative words per class, mean word count by category with error bars.
+- P1.10 Finalized clean_resume_text() with reproducible pipeline; stopword
+  and lemmatization decisions documented (left out for flexibility).
+- P1.11 Verified all 15 target technical tokens survive the pipeline.
+- P1.12 Stratified split (70/15/15) exported; handoff doc generated.
+
+Pending:
+- P1.13 Commit and push the P1 notebooks/scripts/figures, then open a PR
+  from poojan_p1 into develop.
+
+Person 2 tasks (Jeel - jeel_p2)
+------------------------------
+Pending:
+- P2.1-P2.13: stratified split, TF-IDF experiments, classical ML models,
+  tuning, metrics, comparison, feature interpretation, error analysis,
+  model serialization, and PR into develop.
+
+Person 3 tasks (Savan - savan_p3)
+-------------------------------
+Pending:
+- P3.1-P3.13: Word2Vec, document representations, neural classifier,
+  validation, DL evaluation, final model integration, prediction artifacts,
+  Streamlit demo, unseen testing, README updates, and final PR.
+
+Shared tasks
+------------
+Pending:
+- Coordinate preprocessing, split, and final test-set conventions.
+- Review each other's PRs and verify the complete pipeline in a clean
+  environment.
+- Complete final metrics, error analysis, integration, and submission checks.
