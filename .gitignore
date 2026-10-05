@@ -1,0 +1,96 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDE & Editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# ==========================================
+# CRITICAL: DATASET & LARGE FILES EXCLUSION
+# ==========================================
+# General data file extensions
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.csv
+*.tsv
+*.xlsx
+*.xls
+*.pdf
+
+# Allow directory structure and marker files in data/
+!data/
+!data/**/
+!data/**/.gitkeep
+!data/**/README.md
+
+# ==========================================
+# MODEL ARTIFACTS EXCLUSION
+# ==========================================
+# Large binary model checkpoints / weights
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.keras
+models/*.pt
+models/*.pth
+models/*.bin
+models/*.onnx
+models/*.weights.h5
+!models/.gitkeep
+!models/README.md
+
+# Reports / generated figures can be tracked if small, ignore temp outputs
+reports/figures/*.temp
