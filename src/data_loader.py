@@ -32,11 +32,17 @@ def load_resume_csv(filepath: str = DEFAULT_CSV_PATH) -> pd.DataFrame:
 def extract_text_from_pdf(pdf_path: str) -> str:
     """
     Extracts text from a given PDF resume file using pypdf.
+    Attempts layout-aware extraction first to preserve columnar spacing,
+    table boundaries, and prevent glued tokens.
     """
     try:
         from pypdf import PdfReader
         reader = PdfReader(pdf_path)
-        text = "\n".join(page.extract_text() or "" for page in reader.pages)
+        try:
+            # Layout mode preserves whitespace between separate text blocks and prevents glued tokens
+            text = "\n".join(page.extract_text(extraction_mode="layout") or "" for page in reader.pages)
+        except Exception:
+            text = "\n".join(page.extract_text() or "" for page in reader.pages)
         return text.strip()
     except ImportError:
         raise ImportError("pypdf is required to extract PDF text. Install it with: pip install pypdf")
