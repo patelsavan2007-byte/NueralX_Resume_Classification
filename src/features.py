@@ -6,10 +6,14 @@ Project: Resume Classification Hackathon (SAMATRIX RESUMEFORGE 2026)
 Rule: Fit feature extractors ONLY on the training split to avoid data leakage!
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Any
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
-from gensim.models import Word2Vec
+
+try:
+    from gensim.models import Word2Vec
+except ImportError:
+    Word2Vec = Any  # type: ignore
 
 
 def build_tfidf_vectorizer(
@@ -45,7 +49,14 @@ def train_word2vec_model(
     """
     Trains Word2Vec skip-gram/cbow model strictly on the training corpus.
     """
-    model = Word2Vec(
+    try:
+        from gensim.models import Word2Vec as W2VModel
+    except ImportError:
+        raise ImportError(
+            "gensim is required to train Word2Vec embeddings. Please install it using: pip install gensim"
+        )
+
+    model = W2VModel(
         sentences=tokenized_sentences,
         vector_size=vector_size,
         window=window,
