@@ -13,6 +13,7 @@ Tasks Covered:
 """
 
 import os
+import json
 import numpy as np
 import joblib
 from typing import Dict, Any, Tuple
@@ -275,12 +276,27 @@ def train_lstm_classifier(
     print("=" * 60)
     print("\nPer-Class Classification Report:\n" + report_str)
 
+    # P3.8: record the architecture so the checkpoint can be reloaded without
+    # having to infer hyper-parameters from tensor shapes.
+    model._p3_config = {
+        "vocab_size": len(vocab),
+        "embed_dim": embed_dim,
+        "hidden_dim": hidden_dim,
+        "num_classes": num_classes,
+        "num_layers": 2,
+        "dropout": 0.3,
+        "max_len": max_len,
+        "vocab_file": "word2vec_vocab.json",
+        "preprocessing": "src.preprocessing.clean_resume_text + tokenize_resume",
+    }
+
     return {
         "model": model,
         "model_type": "lstm",
         "metrics": metrics,
         "report_str": report_str,
         "predictions": np.array(all_preds),
+        "max_len": max_len,
     }
 
 
@@ -322,7 +338,93 @@ def save_dl_artifacts(
     elif classifier_type == "lstm":
         clf_path = os.path.join(save_dir, "lstm_classifier.pt")
         torch.save(classifier.state_dict(), clf_path)
-        print(f"Saved LSTM model: {clf_path}")
+        # P3.8: the architecture hyper-parameters cannot be recovered from weights
+        # alone, so persist them next to the checkpoint.
+        config = getattr(classifier, "_p3_config", None) or {}
+        cfg_path = os.path.join(save_dir, "lstm_config.json")
+        with open(cfg_path, "w", encoding="utf-8") as f:
+            json.dump(config, f, indent=2)
+        print(f"Saved LSTM model: {clf_path} (config -> {cfg_path})")
+
+
+def load_lstm_classifier(lstm_path: str, config_path: str = None, num_classes: int = None):
+    """
+    P3.8: Rebuild an :class:`LSTMClassifier` from a saved checkpoint.
+
+    Resolution order for the architecture:
+      1. ``lstm_config.json`` written by :func:`save_dl_artifacts` (preferred).
+      2. Inference from the ``state_dict`` tensor shapes (backwards compatible with
+         checkpoints trained before the config side-file existed).
+
+    Returns ``(model, max_len)``. ``max_len`` is the sequence length the model was
+    trained with; it must match at inference time because the BiLSTM consumes a
+    fixed-width padded sequence.
+    """
+    state_dict = torch.load(lstm_path, map_location="cpu", weights_only=True)
+    # Strip any non-tensor bookkeeping keys that may have been saved alongside weights.
+    state_dict = {k: v for k, v in state_dict.items() if hasattr(v, "shape")}
+
+    if config_path is None:
+        config_path = os.path.splitext(lstm_path)[0] + "_config.json"
+        if not os.path.exists(config_path):
+            alt = os.path.join(os.path.dirname(lstm_path), "lstm_config.json")
+            config_path = alt if os.path.exists(alt) else None
+
+    config = {}
+    if config_path and os.path.exists(config_path):
+        with open(config_path, "r", encoding="utf-8") as f:
+            config = json.load(f)
+        print(f"Loaded LSTM config from {config_path}")
+
+    vocab_size, embed_dim = state_dict["embedding.weight"].shape
+    # NB: hidden size comes from weight_hh (weight_ih_l0's dim 1 is the input/embed size).
+    hidden_dim = state_dict["lstm.weight_hh_l0"].shape[1]
+    inferred_layers = 1 + max(
+        int(k.split("weight_ih_l")[1][0]) for k in state_dict if k.startswith("lstm.weight_ih_l")
+    )
+    inferred_classes = state_dict["fc.weight"].shape[0]
+
+    model = LSTMClassifier(
+        vocab_size=config.get("vocab_size", vocab_size),
+        embed_dim=config.get("embed_dim", embed_dim),
+        hidden_dim=config.get("hidden_dim", hidden_dim),
+        num_classes=config.get("num_classes", num_classes or inferred_classes),
+        num_layers=config.get("num_layers", inferred_layers),
+        dropout=0.0,  # inference: dropout is inactive
+        pretrained_weights=None,
+    )
+    model.load_state_dict(state_dict)
+    model.eval()
+
+    max_len = config.get("max_len", 250)
+    print(
+        f"LSTM checkpoint loaded: vocab_size={vocab_size}, embed_dim={embed_dim}, "
+        f"hidden_dim={hidden_dim}, num_layers={model.num_layers if hasattr(model, 'num_layers') else inferred_layers}, "
+        f"num_classes={inferred_classes}, max_len={max_len}"
+    )
+    return model, max_len
+
+
+def lstm_predict_proba(model, index_sequences, max_len: int, batch_size: int = 64) -> np.ndarray:
+    """
+    P3.7: Run the BiLSTM over token-index sequences and return per-class probabilities.
+
+    Sequences are truncated/padded to ``max_len`` exactly as in training.
+    """
+    model.eval()
+    probs = []
+    with torch.no_grad():
+        for start in range(0, len(index_sequences), batch_size):
+            chunk = index_sequences[start:start + batch_size]
+            width = max(1, min(max_len, max((len(s) for s in chunk), default=1)))
+            padded = np.zeros((len(chunk), width), dtype=np.int64)
+            for i, seq in enumerate(chunk):
+                seq = seq[:width]
+                if seq:
+                    padded[i, :len(seq)] = seq
+            logits = model(torch.from_numpy(padded))
+            probs.append(torch.softmax(logits, dim=1).cpu().numpy())
+    return np.vstack(probs) if probs else np.zeros((0, 0))
 
 
 # ============================================================

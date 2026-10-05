@@ -1,0 +1,44 @@
+{
+  "note": "Metrics recomputed from serialized artifacts (P3.8 round-trip verification).",
+  "dl_results": {
+    "dense_nn": {
+      "val": {
+        "accuracy": 0.48257372654155495,
+        "macro_precision": 0.43266372560989375,
+        "macro_recall": 0.4430939737005913,
+        "macro_f1": 0.42442167325999297,
+        "weighted_f1": 0.45900165055639114
+      },
+      "test": {
+        "accuracy": 0.546916890080429,
+        "macro_precision": 0.4896498578679882,
+        "macro_recall": 0.5063671996576408,
+        "macro_f1": 0.4809033943963296,
+        "weighted_f1": 0.5171403323865669
+      }
+    },
+    "bilstm": {
+      "val": {
+        "accuracy": 0.7158176943699732,
+        "macro_precision": 0.7016648368186681,
+        "macro_recall": 0.6617321234049175,
+        "macro_f1": 0.6598997368619047,
+        "weighted_f1": 0.7164732353105002
+      },
+      "test": {
+        "accuracy": 0.6970509383378016,
+        "macro_precision": 0.6746979227629382,
+        "macro_recall": 0.6408457827575474,
+        "macro_f1": 0.6430633076867398,
+        "weighted_f1": 0.6980764023244973
+      }
+    }
+  },
+  "classical_ml_results": {},
+  "selected_model": "bilstm",
+  "selected_test_macro_f1": 0.6430633076867398,
+  "candidate_ranking_test_macro_f1": {
+    "bilstm": 0.6430633076867398,
+    "dense_nn": 0.4809033943963296
+  }
+}

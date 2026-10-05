@@ -39,9 +39,15 @@ class ResumeClassifierPipeline:
         self.pipeline_type = None
         self.pipeline = None
         self.ml_metadata = None
+        self.lstm_model = None
+        self.lstm_max_len = 250
 
-        # Try Word2Vec + Dense NN first
-        if self._try_load_word2vec_pipeline():
+        # Preference order reflects the P3.6 selection on the held-out test split:
+        # BiLSTM (test Macro-F1 0.6431) > Dense NN (0.4809) > classical TF-IDF ML.
+        if self._try_load_lstm_pipeline():
+            self.pipeline_type = "word2vec_lstm"
+            print(f"Loaded Word2Vec + BiLSTM pipeline from {self.models_dir}")
+        elif self._try_load_word2vec_pipeline():
             self.pipeline_type = "word2vec_dense"
             print(f"Loaded Word2Vec + Dense NN pipeline from {self.models_dir}")
         elif self._try_load_tfidf_pipeline():
@@ -49,6 +55,29 @@ class ResumeClassifierPipeline:
             print(f"Loaded TF-IDF + ML pipeline from {self.models_dir}")
         else:
             print("No trained model artifacts found. Pipeline will return placeholder predictions.")
+
+    def _try_load_lstm_pipeline(self) -> bool:
+        """Load the BiLSTM artifacts (P3.6 winning model)."""
+        lstm_path = os.path.join(self.models_dir, "lstm_classifier.pt")
+        w2v_path = os.path.join(self.models_dir, "word2vec_pytorch.pt")
+        vocab_path = os.path.join(self.models_dir, "word2vec_vocab.json")
+        le_path = os.path.join(self.models_dir, "label_encoder.joblib")
+
+        if all(os.path.exists(p) for p in [lstm_path, w2v_path, vocab_path, le_path]):
+            try:
+                from src.word2vec import load_word2vec_artifacts
+                from src.train_dl import load_lstm_classifier
+
+                self.w2v_model, self.vocab = load_word2vec_artifacts(self.models_dir)
+                self.label_encoder = joblib.load(le_path)
+                self.lstm_model, self.lstm_max_len = load_lstm_classifier(
+                    lstm_path, num_classes=len(self.label_encoder.classes_)
+                )
+                return True
+            except Exception as e:
+                print(f"Warning: Failed to load BiLSTM pipeline: {e}")
+                self.lstm_model = None
+        return False
 
     def _try_load_word2vec_pipeline(self) -> bool:
         """Load PyTorch Word2Vec + Dense NN artifacts."""
@@ -167,7 +196,34 @@ class ResumeClassifierPipeline:
         confidence = 0.0
         top_categories = []
 
-        if self.pipeline_type == "word2vec_dense":
+        if self.pipeline_type == "word2vec_lstm":
+            # P3.6 selected model: BiLSTM over Word2Vec-initialised token sequences.
+            from src.train_dl import lstm_predict_proba
+
+            tokens = tokenize_resume(cleaned_text)
+            ids = [self.vocab.get(t, 0) for t in tokens]
+            if not any(i > 0 for i in ids):
+                return {
+                    "predicted_category": "OUT_OF_VOCABULARY",
+                    "confidence": 0.0,
+                    "cleaned_preview": cleaned_text[:200],
+                    "raw_length": len(raw_text),
+                    "error": "No resume tokens matched the Word2Vec vocabulary.",
+                }
+            probs = lstm_predict_proba(self.lstm_model, [ids], self.lstm_max_len)[0]
+            pred_encoded = int(np.argmax(probs))
+            pred_category = self.label_encoder.inverse_transform([pred_encoded])[0]
+            confidence = float(np.max(probs))
+            top_indices = np.argsort(probs)[::-1][:5]
+            top_categories = [
+                {
+                    "category": self.label_encoder.inverse_transform([idx])[0],
+                    "confidence": float(probs[idx]),
+                }
+                for idx in top_indices
+            ]
+
+        elif self.pipeline_type == "word2vec_dense":
             tokens = tokenize_resume(cleaned_text)
             embedding = self._get_w2v_embedding(tokens)
             X = embedding.reshape(1, -1)

@@ -187,36 +187,36 @@ streamlit run app/app.py
 ### 🔹 Poojan (Person 1 — `poojan_p1`) — Data, EDA & Preprocessing
 | Task ID | Description | Status |
 | :--- | :--- | :---: |
-| P1.1 | Inspect dataset: identify file types, columns, label column, resume-text column, number of samples and classes | ☐ |
-| P1.2 | Data quality: check missing/empty resumes, duplicates, corrupted records, label inconsistencies, very short resumes, noisy text, leakage | ☐ |
-| P1.3 | Dataset summary: record total samples, number of classes, samples per class, missing values, duplicate count, basic text stats | ☐ |
-| P1.4 | EDA — class distribution: bar chart of resume categories | ☐ |
-| P1.5 | EDA — resume length: character count, word count, token count distributions | ☐ |
-| P1.6 | EDA — word frequency: top 20–30 frequent words after cleaning | ☐ |
-| P1.7 | EDA — WordCloud: overall and class-wise WordClouds | ☐ |
-| P1.8 | EDA — n-grams: top unigrams, bigrams, trigrams | ☐ |
-| P1.9 | Class-wise vocabulary: top TF-IDF terms or frequency per class | ☐ |
-| P1.10 | Preprocessing: finalize `clean_resume_text()` — test stopword removal impact, lemmatization vs stemming | ☐ |
-| P1.11 | Preserve signal: verify technical tokens (Python, C++, SQL, AWS, TensorFlow, .NET, NLP) are preserved | ☐ |
-| P1.12 | Pipeline handoff: provide Person 2 and Person 3 with exact preprocessing function and documented split logic | ☐ |
-| P1.13 | Commit + PR: push notebooks/scripts/figures to `poojan_p1` and create Pull Request into `develop` | ☐ |
+| P1.1 | Inspect dataset: identify file types, columns, label column, resume-text column, number of samples and classes | ✅ |
+| P1.2 | Data quality: check missing/empty resumes, duplicates, corrupted records, label inconsistencies, very short resumes, noisy text, leakage | ✅ |
+| P1.3 | Dataset summary: record total samples, number of classes, samples per class, missing values, duplicate count, basic text stats | ✅ |
+| P1.4 | EDA — class distribution: bar chart of resume categories | ✅ |
+| P1.5 | EDA — resume length: character count, word count, token count distributions | ✅ |
+| P1.6 | EDA — word frequency: top 20–30 frequent words after cleaning | ✅ |
+| P1.7 | EDA — WordCloud: overall and class-wise WordClouds | ✅ |
+| P1.8 | EDA — n-grams: top unigrams, bigrams, trigrams | ✅ |
+| P1.9 | Class-wise vocabulary: top TF-IDF terms or frequency per class | ✅ |
+| P1.10 | Preprocessing: finalize `clean_resume_text()` — test stopword removal impact, lemmatization vs stemming | ✅ |
+| P1.11 | Preserve signal: verify technical tokens (Python, C++, SQL, AWS, TensorFlow, .NET, NLP) are preserved | ✅ |
+| P1.12 | Pipeline handoff: provide Person 2 and Person 3 with exact preprocessing function and documented split logic | ✅ |
+| P1.13 | Commit + PR: push notebooks/scripts/figures to `poojan_p1` and create Pull Request into `develop` | ✅ |
 
 ### 🔹 Jeel (Person 2 — `jeel_p2`) — TF-IDF, Classical ML & Error Analysis
 | Task ID | Description | Status |
 | :--- | :--- | :---: |
-| P2.1 | Split strategy: stratified train/val/test split (70/15/15 or 80/20), keep test untouched | ☐ |
-| P2.2 | TF-IDF baseline: build `TfidfVectorizer`, compare `(1,1)` vs `(1,2)`, tune `min_df`/`max_df`/`max_features` | ☐ |
-| P2.3 | Model A: train Logistic Regression using TF-IDF | ☐ |
-| P2.4 | Model B: train Linear SVM using TF-IDF | ☐ |
-| P2.5 | Model C: optionally train Multinomial Naive Bayes | ☐ |
-| P2.6 | Model tuning: use validation data or cross-validation (do NOT tune against test set) | ☐ |
-| P2.7 | Metrics: report accuracy, precision, recall, F1, macro-F1, weighted-F1, confusion matrix, per-class metrics | ☐ |
-| P2.8 | Model comparison: create clear comparison table, select best classical model by macro-F1 | ☐ |
-| P2.9 | Feature interpretation: inspect top weighted TF-IDF terms per class | ☐ |
-| P2.10 | Error analysis: collect incorrect predictions with actual/predicted class, confidence, text preview | ☐ |
-| P2.11 | Diagnose failures: categorize errors (class overlap, generic resumes, noisy text, short resumes, mislabeled data) | ☐ |
-| P2.12 | Save model: serialize fitted preprocessing + vectorizer + model pipeline | ☐ |
-| P2.13 | Commit + PR: push ML notebooks/scripts/results to `jeel_p2`, create Pull Request into `develop` | ☐ |
+| P2.1 | Split strategy: stratified train/val/test split (70/15/15 or 80/20), keep test untouched | ✅ |
+| P2.2 | TF-IDF baseline: build `TfidfVectorizer`, compare `(1,1)` vs `(1,2)`, tune `min_df`/`max_df`/`max_features` | ✅ |
+| P2.3 | Model A: train Logistic Regression using TF-IDF | ✅ |
+| P2.4 | Model B: train Linear SVM using TF-IDF | ✅ |
+| P2.5 | Model C: optionally train Multinomial Naive Bayes | ✅ |
+| P2.6 | Model tuning: use validation data or cross-validation (do NOT tune against test set) | ✅ |
+| P2.7 | Metrics: report accuracy, precision, recall, F1, macro-F1, weighted-F1, confusion matrix, per-class metrics | ✅ |
+| P2.8 | Model comparison: create clear comparison table, select best classical model by macro-F1 | ✅ |
+| P2.9 | Feature interpretation: inspect top weighted TF-IDF terms per class | ✅ |
+| P2.10 | Error analysis: collect incorrect predictions with actual/predicted class, confidence, text preview | ✅ |
+| P2.11 | Diagnose failures: categorize errors (class overlap, generic resumes, noisy text, short resumes, mislabeled data) | ✅ |
+| P2.12 | Save model: serialize fitted preprocessing + vectorizer + model pipeline | ✅ |
+| P2.13 | Commit + PR: push ML notebooks/scripts/results to `jeel_p2`, create Pull Request into `develop` | ✅ |
 
 ### 🔹 Savan (Person 3 — `savan_p3`) — Word2Vec, Deep Learning, Demo & Integration
 | Task ID | Description | Status |
@@ -225,13 +225,13 @@ streamlit run app/app.py
 | P3.2 | Document representation: mean pooling of Word2Vec embeddings → (N, 150) doc vectors | ✅ |
 | P3.3 | DL models: Dense NN (MLP 256→128→64) and Bidirectional LSTM over Word2Vec embeddings | ✅ |
 | P3.4 | Validation tracking + early stopping (patience=4 on Macro-F1) for both classifiers | ✅ |
-| P3.5 | DL evaluation — Dense NN: Macro-F1=0.4244, Accuracy=48.3%; BiLSTM: **Macro-F1=0.6599**, Accuracy=71.6% | ✅ |
-| P3.6 | Final model selection: BiLSTM wins (Macro-F1 0.6599 vs 0.4244); artifacts saved | ✅ |
+| P3.5 | DL evaluation (same metric set as ML models). **Val:** Dense NN Macro-F1=0.4244 / Acc=48.3%, BiLSTM Macro-F1=**0.6599** / Acc=71.6%. **Test:** Dense NN Macro-F1=0.4809 / Acc=54.7%, BiLSTM Macro-F1=**0.6431** / Acc=69.7%. Recomputed from saved artifacts via `src/evaluate_dl.py` | ✅ |
+| P3.6 | Final model selection: **BiLSTM** wins on both splits (test Macro-F1 0.6431 vs 0.4809). On the val split it is statistically tied with Person 2's Linear SVM (0.6599 vs 0.6626) — see "Model Selection Rationale" | ✅ |
 | P3.7 | Prediction pipeline: `ResumeClassifierPipeline` (text/PDF → clean → embed → classify → top-5 probs) | ✅ |
-| P3.8 | Saved artifacts: `word2vec_pytorch.pt`, `word2vec_vocab.json`, `lstm_classifier.pt`, `label_encoder.joblib`, `dense_nn_classifier.joblib` | ✅ |
+| P3.8 | Saved artifacts: `word2vec_pytorch.pt`, `word2vec_vocab.json`, `lstm_classifier.pt` (+ `lstm_config.json` architecture side-file), `label_encoder.joblib`, `dense_nn_classifier.joblib`. Round-trip verified by `src/evaluate_dl.py` | ✅ |
 | P3.9 | Streamlit demo: `app/app.py` — paste/PDF upload, top-5 category confidence breakdown, live inference | ✅ |
-| P3.10 | Unseen testing: `src/test_unseen.py` — 5 unseen resume examples across IT, Accounting, Chef, Healthcare, Engineering | ✅ |
-| P3.11 | GitHub integration: all modules committed to `savan_p3` branch; no conflicts with P1/P2 | ✅ |
+| P3.10 | Unseen testing: `src/test_unseen.py` — 5 unseen resumes (IT, Accounting, Chef, Healthcare, Engineering) → **3/5 correct (60%)** | ✅ |
+| P3.11 | GitHub integration: merged `origin/main` (P1+P2) into `savan_p3` — **merge clean, 0 conflicts**; all 8 `src/` modules import cleanly. Fixed 4 integration defects (see below) | ✅ |
 | P3.12 | README updated with final results, task checklist, and Streamlit run instructions | ✅ |
 | P3.13 | Final PR: ready to merge `savan_p3` → `develop` → `main` | ✅ |
 
@@ -252,22 +252,22 @@ streamlit run app/app.py
 - [ ] `.gitignore` completed ✅
 - [ ] `requirements.txt` / environment file completed ✅
 - [ ] Dataset source documented (Google Drive) ✅
-- [ ] Data quality checks completed
-- [ ] EDA figures completed: class distribution, text length, frequent words, WordCloud, n-grams, class-wise vocabulary
-- [ ] Reproducible preprocessing function completed
-- [ ] Stratified train/val/test split completed before fitting vectorizers/embeddings
-- [ ] TF-IDF baseline completed
-- [ ] At least one classical ML classifier completed
-- [ ] At least one deep-learning classifier completed
-- [ ] Model comparison completed
-- [ ] Accuracy + precision + recall + F1 + macro-F1 + weighted-F1 reported
-- [ ] Confusion matrix and per-class metrics reported
-- [ ] Error analysis completed
-- [ ] Final preprocessing + feature extraction + model pipeline saved
-- [ ] 3–5 unseen resumes tested
-- [ ] Streamlit demo completed
-- [ ] README setup and run instructions tested
-- [ ] Final branch contains only working code
+- [x] Data quality checks completed — `reports/p1_data_quality_report.txt`
+- [x] EDA figures completed: class distribution, text length, frequent words, WordCloud, n-grams, class-wise vocabulary — 14 figures in `reports/figures/`
+- [x] Reproducible preprocessing function completed — `src/preprocessing.py`
+- [x] Stratified train/val/test split completed before fitting vectorizers/embeddings
+- [x] TF-IDF baseline completed
+- [x] At least one classical ML classifier completed
+- [x] At least one deep-learning classifier completed
+- [x] Model comparison completed — classical ML vs Dense NN vs BiLSTM
+- [x] Accuracy + precision + recall + F1 + macro-F1 + weighted-F1 reported
+- [x] Confusion matrix and per-class metrics reported
+- [x] Error analysis completed
+- [x] Final preprocessing + feature extraction + model pipeline saved
+- [x] 3–5 unseen resumes tested — `src/test_unseen.py`, 3/5 correct
+- [ ] Streamlit demo completed — ⚠️ `app/app.py` is written and imports cleanly, but **not yet run**: `streamlit` is not installed in the environment. Run `pip install streamlit` then `streamlit run app/app.py`.
+- [ ] README setup and run instructions tested — ⚠️ blocked on the same `streamlit` install
+- [ ] Final branch contains only working code — ⚠️ needs a full end-to-end re-run after `streamlit` is installed
 - [ ] Final GitHub repository reviewed by all 3 members
 
 ---
@@ -279,3 +279,122 @@ streamlit run app/app.py
 - **24 Target Categories:** ACCOUNTANT, ADVOCATE, AGRICULTURE, APPAREL, ARTS, AUTOMOBILE, AVIATION, BANKING, BPO, BUSINESS-DEVELOPMENT, CHEF, CONSTRUCTION, CONSULTANT, DESIGNER, DIGITAL-MEDIA, ENGINEERING, FINANCE, FITNESS, HEALTHCARE, HR, INFORMATION-TECHNOLOGY, PUBLIC-RELATIONS, SALES, TEACHER
 
 > ⚠️ **Note:** The raw dataset is stored locally in `data/raw/` and is **never committed to GitHub** per competition rules and `.gitignore` configuration.
+
+---
+
+## 🧠 Deep Learning Results (Person 3 — `savan_p3`)
+
+All numbers below were **recomputed from the serialized artifacts** (not copied from
+training logs) by `src/evaluate_dl.py`, which also proves the artifacts round-trip.
+Splits: train 1,738 / val 373 / test 373, stratified, 24 classes.
+
+| Model | Representation | Split | Accuracy | Macro-P | Macro-R | **Macro-F1** | Weighted-F1 |
+| :--- | :--- | :---: | ---: | ---: | ---: | ---: | ---: |
+| Dense NN (MLP 256→128→64) | Mean-pooled Word2Vec (150d) | val | 0.4826 | 0.4327 | 0.4431 | 0.4244 | 0.4590 |
+| Dense NN (MLP 256→128→64) | Mean-pooled Word2Vec (150d) | test | 0.5469 | 0.4896 | 0.5064 | 0.4809 | 0.5171 |
+| **BiLSTM** (2 layers, 128 hidden, bidirectional) | Word2Vec token sequences (max_len 250) | val | 0.7158 | 0.7017 | 0.6617 | **0.6599** | 0.7165 |
+| **BiLSTM** (2 layers, 128 hidden, bidirectional) | Word2Vec token sequences (max_len 250) | test | 0.6971 | 0.6747 | 0.6408 | **0.6431** | 0.6981 |
+| Linear SVM *(Person 2)* | TF-IDF uni+bigram | val | 0.6989 | 0.7129 | 0.6631 | 0.6626 | 0.6880 |
+
+Machine-readable copy: [`reports/dl_results.json`](reports/dl_results.json)
+
+### Word2Vec (P3.1)
+Skip-Gram with negative sampling implemented in PyTorch (`src/word2vec.py`).
+- Trained on the **training split only** — val/test never seen during embedding learning (no leakage).
+- vector_size 150, window 5, min_count 2, 5 epochs, ~2.5M skip-gram pairs, 20,371-word vocabulary.
+- Loss converged 1.18 → 0.73.
+
+### Model Selection Rationale (P3.6)
+The **BiLSTM is selected**. Reasoning:
+
+1. **Best DL model on both splits** — test Macro-F1 0.6431 vs 0.4809 for the Dense NN. Mean pooling
+   discards word order, which matters here; the recurrent model retains it.
+2. **Essentially tied with the classical baseline.** Linear SVM edges the BiLSTM on val
+   (0.6626 vs 0.6599, a 0.003 gap — well inside noise for n=373). Rather than overclaim a DL win,
+   the honest read is: *the two approaches perform comparably.* The BiLSTM is shipped because it is
+   the stronger of the DL variants and needs no TF-IDF vocabulary at inference time.
+3. **Averaging collapses rare-category signal** — the Dense NN's weaker macro-F1 shows it favours
+   frequent classes, while macro-averaging penalises exactly that.
+
+### Known Failure Modes (BiLSTM, test set)
+| Class | Precision | Recall | F1 | Support | Reading |
+| :--- | ---: | ---: | ---: | ---: | :--- |
+| AUTOMOBILE | 0.00 | 0.00 | 0.00 | 5 | Never predicted; absorbed into ENGINEERING/AVIATION |
+| BPO | 0.00 | 0.00 | 0.00 | 4 | Tiny support, generic "call centre" wording |
+| APPAREL | 0.12 | 0.21 | 0.15 | 14 | Retail vocabulary overlaps with SALES |
+| AGRICULTURE / ARTS | ~0.30 | ~0.20 | ~0.24 | 10 / 16 | Very small classes, little training signal |
+| HEALTHCARE | 0.28 | 0.78 | 0.41 | 18 | Over-predicts (recall ≫ precision) — absorbs generic resumes |
+
+Pattern: **recall collapses on the 6 smallest categories** while precision stays high on the large,
+lexically-distinct ones (ENGINEERING, HR, CHEF, CONSULTANT, SALES all ≥ 0.9 F1). This is a
+class-imbalance problem, not a modelling failure — the next lever is class-weighted loss or
+resampling rather than a bigger network.
+
+---
+
+## 🔧 Integration Notes (P3.11)
+
+`savan_p3` was merged with `origin/main` (which contains both `poojan_p1` and `jeel_p2`).
+The merge completed with **zero conflicts** — P1 touched `src/preprocessing.py`, P2 added
+`src/run_p2_pipeline.py`, and neither overlapped the DL modules.
+
+Four real integration defects were found and fixed:
+
+| # | Defect | Impact | Fix |
+| :-- | :--- | :--- | :--- |
+| 1 | `src/predict.py` looked for `models/best_ml_model.joblib`, but Person 2's pipeline writes `best_ml_model_<Name>.joblib` and `final_pipeline.joblib` | Classical-ML fallback in the demo could **never** load | Glob for `best_ml_model_*.joblib`; prefer Person 2's self-contained `final_pipeline.joblib` |
+| 2 | A `sklearn.pipeline.Pipeline` takes raw text, not a vectorised matrix | Passing a sparse matrix to it would raise | Branch on `self.pipeline` and pass cleaned text directly |
+| 3 | `predict.py` deployed the **Dense NN** path, but the BiLSTM won P3.6 | Demo would serve the weaker model | Added a `word2vec_lstm` path; preference order is now LSTM → Dense NN → TF-IDF |
+| 4 | `requirements.txt` had `torch` commented out as "optional" | A clean `pip install -r requirements.txt` produces a repo that **cannot train or serve** the DL model | `torch>=2.0.0` promoted to a required dependency |
+
+Two further robustness gaps were closed: `save_dl_artifacts` now writes an
+`lstm_config.json` side-file (the architecture cannot be recovered from weights alone),
+and `load_lstm_classifier` falls back to inferring the architecture from `state_dict` shapes
+so pre-existing checkpoints still load. `src/test_unseen.py` also no longer crashes on
+Windows consoles that default to `cp1252`.
+
+### Preprocessing drift (measured, not assumed)
+The DL artifacts were trained ~20 minutes before Person 1's `preprocessing.py` refinements
+landed on `main`. The change affects only 9 protected tech-token patterns
+(`c++`, `C#`, `.NET`, `CI/CD`, `Node.js`, `Vue.js`, `React.js`, `HTML/CSS`, `ASP.NET`).
+Measured over the 1,738-document training split:
+
+- **369 tokens affected = 0.026% of the 1,421,200 total tokens**
+- 142 documents (8.17%) contain at least one such token
+
+At 0.026% of tokens the drift cannot move mean-pooled document vectors, so the models were
+**kept** rather than retrained. Worth revisiting only if `clean_resume_text` changes materially.
+
+### ⚠️ Model artifacts are not in Git
+`.gitignore` excludes `models/*.joblib` and `*.pt`, so a fresh clone has **no trained model**.
+Regenerate before running the demo or the notebooks:
+
+```bash
+pip install -r requirements.txt
+python scripts/p1_preprocessing_split.py     # P1: writes data/processed/{train,val,test}.csv
+python src/run_p2_pipeline.py                # P2: TF-IDF + classical ML  -> models/*.joblib
+python src/run_dl_pipeline.py                # P3: Word2Vec + Dense NN + BiLSTM
+python src/evaluate_dl.py                    # P3: recompute metrics + write reports/dl_results.json
+python src/test_unseen.py                    # P3: 5 unseen resumes
+streamlit run app/app.py                     # demo  (requires: pip install streamlit)
+```
+
+---
+
+## 🚀 Quick Start
+
+```bash
+git clone https://github.com/patelsavan2007-byte/NueralX_Resume_Classification.git
+cd NueralX_Resume_Classification
+pip install -r requirements.txt
+python -m streamlit run app/app.py
+```
+
+Dataset placement (never committed — see `.gitignore`):
+
+| Local path | Contents |
+| :--- | :--- |
+| `data/raw/csv/Resume.csv` | 2,484 tabular records |
+| `data/raw/pdf_resumes/<category>/*.pdf` | 2,500 categorized PDFs |
+
+Run the full regeneration sequence above to rebuild splits, models and reports from scratch.

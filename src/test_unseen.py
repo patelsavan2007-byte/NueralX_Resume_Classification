@@ -9,6 +9,11 @@ Tests the final pipeline on 5 unseen resume examples that were NOT in the datase
 import sys, os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+# Windows consoles default to cp1252 and cannot render the box-drawing/emoji glyphs
+# used in the report headers; force UTF-8 so the script runs anywhere.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 from src.predict import ResumeClassifierPipeline
 
 
@@ -83,7 +88,7 @@ def run_unseen_tests():
         result = pipeline.predict(sample["text"])
         predicted = result["predicted_category"]
         expected = sample["expected"]
-        match = "✅" if predicted == expected else "❌"
+        match = "[PASS]" if predicted == expected else "[FAIL]"
 
         if predicted == expected:
             correct += 1
